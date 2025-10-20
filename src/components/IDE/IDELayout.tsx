@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatPanel } from './ChatPanel';
 import { CodeEditor } from './CodeEditor';
 import { PreviewPanel } from './PreviewPanel';
 import { FileTree } from './FileTree';
 import { ExportImportMenu } from './ExportImportMenu';
 import { TemplateSelector } from './TemplateSelector';
+import { CollaboratorPresence } from './CollaboratorPresence';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Code2, Eye, FolderTree } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProjectTemplate } from '@/lib/templates';
+import { useRealtimeCollaboration } from '@/hooks/useRealtimeCollaboration';
 
 interface FileNode {
   id: string;
@@ -32,6 +34,35 @@ export const IDELayout = () => {
     }
   ]);
   const [projectId, setProjectId] = useState<string | null>(null);
+  
+  // Mock user ID - in production, this would come from authentication
+  const userId = 'user_' + Math.random().toString(36).substring(7);
+  const username = 'Developer ' + Math.floor(Math.random() * 1000);
+
+  // Realtime collaboration
+  const {
+    isConnected,
+    collaborators,
+    broadcastFileChange,
+  } = useRealtimeCollaboration({
+    projectId,
+    userId,
+    username,
+    onFileChange: (event) => {
+      // Update file when remote change is received
+      const file = files.find(f => f.path === event.file_path);
+      if (file) {
+        const updatedFile = { ...file, content: event.content };
+        setFiles(prevFiles =>
+          prevFiles.map(f => f.path === event.file_path ? updatedFile : f)
+        );
+        if (activeFile?.path === event.file_path) {
+          setActiveFile(updatedFile);
+        }
+        toast.info(`File ${event.file_path} updated by remote user`);
+      }
+    },
+  });
 
   const handleFileSelect = (file: FileNode) => {
     if (!file.isFolder) {
@@ -46,6 +77,11 @@ export const IDELayout = () => {
       setFiles(prevFiles => 
         prevFiles.map(f => f.id === activeFile.id ? updatedFile : f)
       );
+      
+      // Broadcast change to collaborators
+      if (projectId && isConnected) {
+        broadcastFileChange(activeFile.path, newContent);
+      }
     }
   };
 
@@ -243,6 +279,10 @@ export const IDELayout = () => {
                   </TabsTrigger>
                 </TabsList>
                 <div className="flex items-center gap-2">
+                  <CollaboratorPresence
+                    collaborators={collaborators}
+                    isConnected={isConnected}
+                  />
                   <TemplateSelector onSelectTemplate={handleSelectTemplate} />
                   <ExportImportMenu 
                     files={files}
