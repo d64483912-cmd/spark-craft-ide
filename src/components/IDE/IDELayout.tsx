@@ -6,8 +6,9 @@ import { FileTree } from './FileTree';
 import { ExportImportMenu } from './ExportImportMenu';
 import { TemplateSelector } from './TemplateSelector';
 import { CollaboratorPresence } from './CollaboratorPresence';
+import { GitPanel } from './GitPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Code2, Eye, FolderTree } from 'lucide-react';
+import { Code2, Eye, FolderTree, MessageSquare, GitBranch } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProjectTemplate } from '@/lib/templates';
 import { useRealtimeCollaboration } from '@/hooks/useRealtimeCollaboration';
@@ -228,13 +229,38 @@ export const IDELayout = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
-      {/* Chat Panel - Left Side */}
+      {/* Left Sidebar - Chat & Git */}
       <div className="w-96 border-r border-border flex flex-col bg-[hsl(var(--sidebar-bg))]">
-        <ChatPanel 
-          projectId={projectId}
-          onFileCreate={handleCreateFile}
-          files={files}
-        />
+        <Tabs defaultValue="chat" className="flex-1 flex flex-col">
+          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
+            <TabsTrigger 
+              value="chat" 
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              AI Chat
+            </TabsTrigger>
+            <TabsTrigger 
+              value="git"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+            >
+              <GitBranch className="w-4 h-4 mr-2" />
+              Git
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="chat" className="flex-1 m-0 p-0">
+            <ChatPanel 
+              projectId={projectId}
+              onFileCreate={handleCreateFile}
+              files={files}
+            />
+          </TabsContent>
+          
+          <TabsContent value="git" className="flex-1 m-0 p-0">
+            <GitPanel projectPath={projectId || undefined} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Middle Section - File Tree & Editor */}
