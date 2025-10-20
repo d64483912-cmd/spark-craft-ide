@@ -4,6 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Sparkles, Code2, FileCode } from 'lucide-react';
 import { toast } from 'sonner';
+import { aiRequestLimiter } from '@/lib/security/rateLimit';
+import { sanitizeAIPrompt } from '@/lib/security/validation';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -100,7 +102,18 @@ export const ChatPanel = ({ projectId, onFileCreate, files }: ChatPanelProps) =>
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = { role: 'user', content: input };
+    // Rate limit check
+    const userId = 'user_' + (projectId || 'default');
+    const rateLimitResult = aiRequestLimiter.check(userId);
+    if (!rateLimitResult.allowed) {
+      const resetInSeconds = Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000);
+      toast.error(`Rate limit exceeded. Please wait ${resetInSeconds} seconds before making another AI request.`);
+      return;
+    }
+
+    // Sanitize input
+    const sanitizedInput = sanitizeAIPrompt(input);
+    const userMessage: Message = { role: 'user', content: sanitizedInput };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);

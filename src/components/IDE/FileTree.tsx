@@ -21,6 +21,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { isValidFileName } from '@/lib/security/validation';
 
 interface FileNode {
   id: string;
@@ -65,6 +66,12 @@ export const FileTree = ({
   const handleCreateFile = () => {
     if (!newFileName.trim()) {
       toast.error('Please enter a file name');
+      return;
+    }
+
+    // Validate file name
+    if (!isValidFileName(newFileName)) {
+      toast.error('Invalid file name. Please use only alphanumeric characters, hyphens, and underscores. Avoid special characters and path traversal.');
       return;
     }
 
