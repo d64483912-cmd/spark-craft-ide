@@ -368,18 +368,67 @@ const templates: Record<string, string> = {
 
 ### Phase 2: Enhancement 🚧
 - [ ] User authentication
-- [ ] Project save/load from database
-- [ ] Real-time collaboration (WebSocket)
-- [ ] Git integration
-- [ ] Deployment integration (Vercel, Netlify)
+- [x] Project save/load from database
+- [x] Real-time collaboration (WebSocket)
+- [x] Git integration
+- [x] Deployment integration (Vercel, Netlify)
 
 ### Phase 3: Advanced Features 📋
-- [ ] Template library
+- [x] Template library
 - [ ] Code snippets
 - [ ] Extension marketplace
-- [ ] Multi-user editing
-- [ ] Version history
+- [x] Multi-user editing
+- [x] Version history
 - [ ] AI code review
+
+## 🚀 Deployment
+
+SparkCraft IDE can be deployed to major hosting platforms with zero configuration.
+
+### Quick Deploy
+
+#### Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/d64483912-cmd/spark-craft-ide)
+
+1. Click the button above
+2. Connect your GitHub account
+3. Add environment variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Deploy!
+
+#### Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/d64483912-cmd/spark-craft-ide)
+
+1. Click the button above
+2. Connect your GitHub account
+3. Add environment variables in site settings
+4. Deploy!
+
+### Manual Deployment
+
+For detailed deployment instructions, including:
+- CLI deployment steps
+- Custom domain setup
+- Environment variable configuration
+- Troubleshooting guide
+- Performance optimization
+
+See the complete [Deployment Guide](docs/DEPLOYMENT.md)
+
+### Configuration Files
+
+The project includes pre-configured deployment files:
+- `vercel.json` - Vercel platform configuration
+- `netlify.toml` - Netlify platform configuration
+
+Both files include:
+- ✓ Optimized build settings
+- ✓ Security headers
+- ✓ SPA routing rules
+- ✓ Asset caching policies
 
 ## 🤝 Contributing
 
