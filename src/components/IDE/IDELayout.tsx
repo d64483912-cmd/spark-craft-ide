@@ -4,9 +4,11 @@ import { CodeEditor } from './CodeEditor';
 import { PreviewPanel } from './PreviewPanel';
 import { FileTree } from './FileTree';
 import { ExportImportMenu } from './ExportImportMenu';
+import { TemplateSelector } from './TemplateSelector';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Code2, Eye, FolderTree } from 'lucide-react';
 import { toast } from 'sonner';
+import { ProjectTemplate } from '@/lib/templates';
 
 interface FileNode {
   id: string;
@@ -169,6 +171,25 @@ export const IDELayout = () => {
     toast.success('Project imported successfully!');
   };
 
+  const handleSelectTemplate = (template: ProjectTemplate) => {
+    // Convert template files to FileNode format
+    const templateFiles: FileNode[] = template.files.map((file, index) => ({
+      id: (Date.now() + index).toString(),
+      name: file.name,
+      path: file.path,
+      content: file.content,
+      language: file.language,
+    }));
+
+    // Replace existing files with template files
+    setFiles(templateFiles);
+    // Set the first file as active
+    if (templateFiles.length > 0) {
+      setActiveFile(templateFiles[0]);
+    }
+    toast.success(`Template "${template.name}" loaded successfully!`);
+  };
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
       {/* Chat Panel - Left Side */}
@@ -221,11 +242,14 @@ export const IDELayout = () => {
                     Split
                   </TabsTrigger>
                 </TabsList>
-                <ExportImportMenu 
-                  files={files}
-                  projectName="my-project"
-                  onImport={handleImport}
-                />
+                <div className="flex items-center gap-2">
+                  <TemplateSelector onSelectTemplate={handleSelectTemplate} />
+                  <ExportImportMenu 
+                    files={files}
+                    projectName="my-project"
+                    onImport={handleImport}
+                  />
+                </div>
               </div>
 
               <TabsContent value="editor" className="flex-1 m-0 p-0">
